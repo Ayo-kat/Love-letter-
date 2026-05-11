@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Eternal Love Letter | For My Dearest</title>
+    <!-- Google Fonts for elegant typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti library for heart burst effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* subtle elegance, avoid accidental dragging */
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #ffdde1 0%, #f9c7cf 30%, #ffb6c1 70%, #ff9eb5 100%);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Floating hearts & sparkles container */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+        }
+
+        .heart, .sparkle {
+            position: absolute;
+            font-size: 1.4rem;
+            opacity: 0.6;
+            animation: floatUp 12s linear infinite;
+            filter: drop-shadow(0 0 4px rgba(255, 80, 120, 0.6));
+            pointer-events: none;
+        }
+
+        .sparkle {
+            font-size: 1rem;
+            animation-duration: 8s;
+            opacity: 0.8;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(20deg);
+                opacity: 0;
+            }
+        }
+
+        /* Main glass container style */
+        .glass-card {
+            background: rgba(255, 245, 245, 0.35);
+            backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            transition: all 0.4s ease;
+        }
+
+        /* LANDING SCREEN (Open Letter Button) */
+        .landing-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            background: radial-gradient(circle at center, #ffb7c5, #ff8da1);
+            transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.7s;
+            backdrop-filter: blur(3px);
+        }
+
+        .landing-screen.hide-landing {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .open-btn {
+            background: linear-gradient(135deg, #fff0f3, #ffd9e2);
+            border: none;
+            padding: 1.2rem 2.8rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            font-family: 'Cormorant Garamond', serif;
+            color: #c0395b;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 15px 35px rgba(150, 40, 70, 0.4), 0 0 0 2px rgba(255, 245, 245, 0.9) inset;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            letter-spacing: 2px;
+            backdrop-filter: blur(4px);
+        }
+
+        .open-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(190, 50, 80, 0.5);
+            background: linear-gradient(135deg, #ffeef2, #ffd0db);
+        }
+
+        /* MAIN LOVE LETTER (hidden initially) */
+        .love-letter-container {
+            max-width: 880px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 1.2rem;
+            display: none;
+            opacity: 0;
+            animation: fadeGlow 0.9s forwards;
+        }
+
+        @keyframes fadeGlow {
+            0% { opacity: 0; transform: scale(0.96); filter: blur(6px);}
+            100% { opacity: 1; transform: scale(1); filter: blur(0);}
+        }
+
+        .letter-inner {
+            background: rgba(255, 248, 245, 0.75);
+            backdrop-filter: blur(14px);
+            border-radius: 2rem;
+            padding: 2rem 2rem 2.2rem;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 215, 225, 0.8);
+            transition: all 0.3s;
+        }
+
+        /* photo frame */
+        .photo-frame {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .picture-card {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffb7c2, #ff92ab);
+            padding: 6px;
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2), 0 0 0 4px rgba(255, 240, 235, 0.8);
+            transition: transform 0.4s;
+        }
+
+        .picture-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .picture-card:hover {
+            transform: scale(1.02);
+        }
+
+        /* typography */
+        .greeting-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.3rem;
+            font-weight: 600;
+            text-align: center;
+            color: #a52a4a;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .message-section {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .romantic-text {
+            font-size: 1.15rem;
+            line-height: 1.65;
+            color: #3d1e2b;
+            font-weight: 500;
+            background: rgba(255,245,240,0.5);
+            padding: 1rem 1.5rem;
+            border-radius: 2rem;
+            margin-bottom: 20px;
+        }
+
+        #typingMessage {
+            font-size: 1.1rem;
+            font-weight: 500;
+            font-style: italic;
+            background: rgba(255, 220, 210, 0.5);
+            padding: 16px 20px;
+            border-radius: 28px;
+            margin-top: 8px;
+            color: #b13e5c;
+            min-height: 90px;
+            border-left: 4px solid #ff6b8b;
+        }
+
+        .countdown-area {
+            background: rgba(255,235,235,0.7);
+            border-radius: 40px;
+            padding: 12px 18px;
+            text-align: center;
+            margin: 24px 0 20px;
+            font-weight: 500;
+            font-size: 1.2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .countdown-area span {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #bc2f5a;
+            margin-right: 6px;
+        }
+
+        .eternal-quote {
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            color: #aa3e62;
+            margin: 24px 0 12px;
+            padding: 10px;
+            background: rgba(255,245,235,0.6);
+            border-radius: 50px;
+        }
+
+        .footer-forever {
+            text-align: center;
+            margin-top: 1.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #c94f6f;
+            letter-spacing: 2px;
+            border-top: 1px dashed #ffb7c9;
+            padding-top: 18px;
+        }
+
+        /* music control + interactive */
+        .music-control {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 15px;
+        }
+
+        .music-btn {
+            background: rgba(255, 225, 230, 0.9);
+            backdrop-filter: blur(8px);
+            border: none;
+            border-radius: 60px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ac3f60;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+
+        .music-btn:hover {
+            background: #ffe0e8;
+            transform: scale(0.97);
+        }
+
+        .pulse-icon {
+            animation: pulseIcon 1.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulseIcon {
+            0% { transform: scale(1); opacity: 0.7; text-shadow: 0 0 0px; }
+            100% { transform: scale(1.2); opacity: 1; text-shadow: 0 0 6px #ff4d6d; }
+        }
+
+        /* responsive */
+        @media (max-width: 650px) {
+            .letter-inner {
+                padding: 1.5rem;
+            }
+            .greeting-name {
+                font-size: 1.8rem;
+            }
+            .romantic-text {
+                font-size: 1rem;
+            }
+            .picture-card {
+                width: 130px;
+                height: 130px;
+            }
+            .countdown-area span {
+                font-size: 1.4rem;
+            }
+            .open-btn {
+                font-size: 1.4rem;
+                padding: 1rem 2rem;
+            }
+        }
+
+        /* custom scroll & hidden overflow */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffd0d8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e66a8c;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="floating-elements" id="floatingContainer"></div>
+
+<!-- LANDING SCREEN (Open Letter) -->
+<div id="landingScreen" class="landing-screen">
+    <button class="open-btn" id="openLetterBtn">
+        ✉️  Open Letter ❤️  💌
+    </button>
+</div>
+
+<!-- MAIN LOVE LETTER CONTENT (Hidden at start) -->
+<div id="loveLetterMain" class="love-letter-container">
+    <div class="letter-inner glass-card">
+        <!-- Girlfriend's photo frame -->
+        <div class="photo-frame">
+            <div class="picture-card">
+                <!-- REPLACE IMAGE URL HERE (Placeholder) -->
+                <img id="girlfriendPhoto" src="https://images.pexels.com/photos/3807730/pexels-photo-3807730.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" alt="Her Beautiful Smile">
+            </div>
+        </div>
+
+        <!-- Greeting with name placeholder -->
+        <div class="greeting-name">
+            My Dearest, <span id="herNameDisplay">✨ Sofia ✨</span>
+        </div>
+
+        <!-- Heartfelt romantic message section -->
+        <div class="message-section">
+            <div class="romantic-text" id="loveMessageParagraph">
+                <!-- Editable custom love message area -->
+                💕 Every sunrise reminds me of your warmth, every star whispers your name. 💕
+            </div>
+            <!-- Typewriter effect will appear here -->
+            <div id="typingMessage"></div>
+        </div>
+
+        <!-- Days since we met countdown❤️ -->
+        <div class="countdown-area">
+            💖 <span id="daysCounter">0</span> Days of pure magic since we met 💖<br>
+            <small style="font-size:0.75rem;">and my love for you grows infinitely</small>
+        </div>
+
+        <!-- Eternal promise quote -->
+        <div class="eternal-quote">
+            “No matter where life takes us, my heart will always choose you ❤️”
+        </div>
+
+        <!-- Music control -->
+        <div class="music-control">
+            <button id="musicToggleBtn" class="music-btn">
+                🎵 Play Romantic Melody 🎵
+            </button>
+        </div>
+
+        <!-- Forever & Always footer -->
+        <div class="footer-forever">
+            💕 Forever & Always ❤️ 💕
+        </div>
+
+        <!-- hidden extra love icons row -->
+        <div style="display: flex; justify-content: center; gap: 14px; margin-top: 15px; font-size: 1.4rem;">
+            💖 ✨ 💕 💗 💞
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== USER EDITABLE PLACEHOLDERS ==========
+    // 1. Her Image: Replace the 'src' of img above or change variable below if needed (already done via id).
+    //    You can directly change the 'src' attribute in the img tag located at line ~180.
+    //    For convenience also provide an optional variable:
+    const HER_IMAGE_URL = "https://images.pexels.com/photos/3807730/pexels-photo-3807730.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop"; // replace with her photo link
+    // 2. Her name (change here)
+    const HER_NAME = "✨ Sofia ✨";   // change to her sweet name!
+    // 3. Custom love message paragraph (visible static message)
+    const CUSTOM_LOVE_MESSAGE = "💕 From the moment our worlds collided, I felt the universe smile. Your laughter is my favorite song, your eyes my safe harbor. Every heartbeat is a rhythm that spells your name. 💕";
+    // 4. Music file URL (replace with your romantic instrumental track)
+    const MUSIC_FILE_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; // REPLACE with your own romantic instrumental link (or local file)
+    // 5. Date you met: (YYYY, MM, DD) - month is 0-index in JS but we parse ISO? Use date construction
+    const MEET_DATE = new Date(2023, 5, 18); // ⬅️ Change to your special day (year, month-1, day) e.g., June 18, 2023
+
+    // ========== Additional message for typewriter effect (emotional) ==========
+    const TYPING_FULL_TEXT = `✨ My love, every single day with you feels like poetry. You're my dream, my reality, and my forever. I promise to cherish you in every sunrise and hold you in every star. ✨ You make my world infinite.`;
+
+    // Apply custom values to DOM
+    document.addEventListener("DOMContentLoaded", () => {
+        // set her name
+        const nameSpan = document.getElementById("herNameDisplay");
+        if (nameSpan) nameSpan.innerText = HER_NAME;
+        // set girlfriend photo
+        const photoImg = document.getElementById("girlfriendPhoto");
+        if (photoImg) photoImg.src = HER_IMAGE_URL;
+        // set static love message paragraph
+        const lovePara = document.getElementById("loveMessageParagraph");
+        if (lovePara) lovePara.innerText = CUSTOM_LOVE_MESSAGE;
+
+        // audio element setup
+        const audio = new Audio(MUSIC_FILE_URL);
+        audio.loop = true;
+        audio.volume = 0.55;
+
+        let isPlaying = false;
+        const musicBtn = document.getElementById("musicToggleBtn");
+
+        function toggleMusic() {
+            if (isPlaying) {
+                audio.pause();
+                musicBtn.innerHTML = "🎵 Play Romantic Melody 🎵";
+                isPlaying = false;
+            } else {
+                audio.play().catch(e => {
+                    console.warn("Auto-play blocked? User interaction needed. Click again.");
+                    musicBtn.innerHTML = "🎵 Click to Play (need interaction) 🎵";
+                });
+                if (!audio.paused) {
+                    isPlaying = true;
+                    musicBtn.innerHTML = "⏸️ Pause Melody 🎶";
+                } else {
+                    // forced after user gesture
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        musicBtn.innerHTML = "⏸️ Pause Melody 🎶";
+                    }).catch(() => {
+                        musicBtn.innerHTML = "🎵 Click again to play 🎵";
+                    });
+                }
+            }
+        }
+        musicBtn.addEventListener("click", () => {
+            toggleMusic();
+        });
+
+        // Ensure on first real user click after open, but music toggle works independently.
+
+        // Days since we met
+        function updateDaysCounter() {
+            const today = new Date();
+            const timeDiff = today - MEET_DATE;
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const daysSpan = document.getElementById("daysCounter");
+            if (daysSpan) daysSpan.innerText = days >= 0 ? days : 0;
+        }
+        updateDaysCounter();
+
+        // Typewriter effect activation (only after letter opens)
+        let typewriterStarted = false;
+        let typeInterval = null;
+
+        function startTypewriter() {
+            if (typewriterStarted) return;
+            typewriterStarted = true;
+            const typingElement = document.getElementById("typingMessage");
+            if (!typingElement) return;
+            typingElement.innerText = "";
+            let i = 0;
+            function addChar() {
+                if (i < TYPING_FULL_TEXT.length) {
+                    typingElement.innerText += TYPING_FULL_TEXT.charAt(i);
+                    i++;
+                    typeInterval = setTimeout(addChar, 45);
+                } else {
+                    clearTimeout(typeInterval);
+                    // add pulsing heart after end
+                    const finishHeart = document.createElement('span');
+                    finishHeart.innerHTML = " ❤️✨";
+                    typingElement.appendChild(finishHeart);
+                }
+            }
+            addChar();
+        }
+
+        // Confetti & heart burst effect when opening
+        function burstHeartsAndConfetti() {
+            // huge burst confetti romantic
+            canvasConfetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ff6f91', '#ffb3c6', '#ff8da1', '#ffc0d0'], startVelocity: 20, gravity: 0.8 });
+            canvasConfetti({ particleCount: 90, spread: 120, origin: { y: 0.5, x: 0.2 }, startVelocity: 25 });
+            canvasConfetti({ particleCount: 90, spread: 120, origin: { y: 0.5, x: 0.8 }, startVelocity: 25 });
+            setTimeout(() => {
+                canvasConfetti({ particleCount: 280, spread: 60, origin: { y: 0.4 }, startVelocity: 18, decay: 0.9 });
+            }, 150);
+            // heart-shaped burst effect (using extra confetti customization)
+            setTimeout(() => {
+                canvasConfetti({ particleCount: 300, spread: 45, origin: { y: 0.7 }, startVelocity: 30, colors: ['#e8436e', '#ff597d', '#ff85a1'] });
+            }, 250);
+        }
+
+        // floating hearts & sparkles generator
+        function createFloatingElements() {
+            const container = document.getElementById("floatingContainer");
+            if (!container) return;
+            const icons = ['❤️', '💕', '💖', '💗', '✨', '💞', '🌸', '⭐'];
+            for (let i = 0; i < 42; i++) {
+                const el = document.createElement('div');
+                const isHeart = Math.random() > 0.3;
+                el.innerText = icons[Math.floor(Math.random() * icons.length)];
+                if (isHeart) el.classList.add('heart');
+                else el.classList.add('sparkle');
+                const size = Math.random() * 20 + 12;
+                el.style.fontSize = size + 'px';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.animationDuration = Math.random() * 12 + 6 + 's';
+                el.style.animationDelay = Math.random() * 12 + 's';
+                el.style.opacity = Math.random() * 0.6 + 0.3;
+                container.appendChild(el);
+            }
+        }
+        createFloatingElements();
+
+        // smooth transition: Open letter logic.
+        const landingDiv = document.getElementById("landingScreen");
+        const mainLetterDiv = document.getElementById("loveLetterMain");
+        const openBtn = document.getElementById("openLetterBtn");
+
+        function openTheLetter() {
+            if (!landingDiv || !mainLetterDiv) return;
+            // Hide landing with animation
+            landingDiv.classList.add("hide-landing");
+            // Display main letter
+            mainLetterDiv.style.display = "block";
+            // Trigger confetti & heart burst
+            burstHeartsAndConfetti();
+            // start typewriter animation
+            startTypewriter();
+            // Also add extra pulse effect on photo frame briefly
+            const photoCard = document.querySelector(".picture-card");
+            if (photoCard) {
+                photoCard.style.animation = "pulseIcon 0.6s ease-in-out 2";
+                setTimeout(() => { photoCard.style.animation = ""; }, 700);
+            }
+            // Option: Auto-gesture to allow music to be ready, but user still must press Play due to browser policy.
+            // we also update the background floating elements intensity? nothing else
+        }
+
+        openBtn.addEventListener("click", (e) => {
+            openTheLetter();
+        });
+
+        // In case of accidental re-click safety
+        // Also if someone wants to reset? no needed.
+
+        // Ensure that countdown updates every day (or upon load)
+        setInterval(() => {
+            updateDaysCounter();
+        }, 86400000); // update once daily
+
+        // Add pulsing heart icon class to footer elements
+        const footerDiv = document.querySelector(".footer-forever");
+        if (footerDiv) {
+            setInterval(() => {
+                const heartSpan = document.createElement('span');
+                // just effect sync
+                const existing = footerDiv.querySelector('.pulse-icon');
+                if (!existing) {
+                    // dynamic pulse to make it playful
+                }
+            }, 1000);
+        }
+        // also add small background floating animation 
+        // additional glassmorphism ambient
+        const heartIconsAll = document.querySelectorAll('.countdown-area, .eternal-quote');
+        if (heartIconsAll) {
+            // already
+        }
+    });
+</script>
+<!-- Additional small adjustment: disable contextmenu for elegance (optional) -->
+<script>
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    // add dynamic mouse love trail? Not needed but ensures romance
+    // But no conflict.
+</script>
+</body>
+</html>
